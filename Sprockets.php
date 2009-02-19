@@ -10,12 +10,18 @@ class Sprockets {
 	
 	static function load($files) {
 		$yaml = Spyc::YAMLLoad('config.yml'); // Load config from YAML file
-		self::$load_path = $yaml[':load_path']; // Search path to find javascript sources
+		self::$load_path = $yaml['load_path']; // Search path to find javascript sources
 		$files = split(',', $files); // Split files by comma
 		
 		foreach ($files as $file) {
 			$temp_contents = file_get_contents(dirname(__FILE__) . $file);
 			self::$contents .= self::parse($temp_contents);
+		}
+		
+		foreach ($yaml['constants'] as $contstant) {
+			$key = array_keys($contstant);
+			$pattern = '/<%= ' . addslashes($key[0]) . ' %>/';
+			self::$contents = preg_replace($pattern, $contstant[$key[0]], self::$contents);
 		}
 		
 		return self::$contents;
@@ -35,7 +41,7 @@ class Sprockets {
 				self::$loaded[] = $match;
 				$stack = $stack . self::parse(file_get_contents(dirname(__FILE__) . '/js/' . $match . '.js')) . "\n";
 			}
-			$pattern = '/\/\/= require <' . $match . '>/';
+			$pattern = '/\/\/= require <' . addslashes($match) . '>/';
 			$content = preg_replace($pattern, null, $content);
 		}
 		$content = $stack . $content;
