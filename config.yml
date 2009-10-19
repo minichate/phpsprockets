@@ -3,3 +3,4 @@ load_path:
 constants:
  	- PHP_SPROCKETS_VERSION: 0.1
  	- PHP_SPROCKETS_AUTHOR: Christopher Troup
+
